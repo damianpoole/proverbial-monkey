@@ -2,8 +2,6 @@ import React from 'react'
 import { StaticQuery, graphql } from 'gatsby'
 import Image from 'gatsby-image'
 
-import { rhythm } from '../utils/typography'
-
 function Bio() {
   return (
     <StaticQuery
@@ -11,27 +9,18 @@ function Bio() {
       render={data => {
         const { author, social } = data.site.siteMetadata
         return (
-          <div
-            style={{
-              display: `flex`,
-              marginBottom: rhythm(2.5),
-            }}
-          >
-            <Image
-              fixed={data.avatar.childImageSharp.fixed}
-              alt={author}
-              style={{
-                marginRight: rhythm(1 / 2),
-                marginBottom: 0,
-                minWidth: 50,
-                borderRadius: `100%`,
-              }}
-            />
-            <p>
-              Written by <strong>{author}</strong> who lives and works in
-              Minneapolis building silly things.
+          <div className="flex items-center my-6">
+            <div className="h-16 w-16 mr-10">
+              <Image
+                fixed={data.avatar.childImageSharp.fixed}
+                alt={author}
+                className="rounded-full"
+              />
+            </div>
+            <p>Written by <strong>{author}</strong>, a senior software 
+              engineer living and working in Yorkshire.
               {` `}
-              <a href={`https://twitter.com/${social.twitter}`}>
+              <a className="inline-block link" href={`https://twitter.com/${social.twitter}`}>
                 You should follow him on Twitter
               </a>
             </p>
@@ -44,9 +33,9 @@ function Bio() {
 
 const bioQuery = graphql`
   query BioQuery {
-    avatar: file(absolutePath: { regex: "/profile-pic.jpg/" }) {
+    avatar: file(absolutePath: { regex: "/profile.jpg/" }) {
       childImageSharp {
-        fixed(width: 50, height: 50) {
+        fixed(width: 75, height: 75) {
           ...GatsbyImageSharpFixed
         }
       }

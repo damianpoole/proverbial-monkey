@@ -1,11 +1,11 @@
 module.exports = {
   siteMetadata: {
-    title: `Gatsby Starter Blog MDX`,
-    author: `Matt Hagner`,
-    description: `An extension of the gatsby starter blog, with support for MDX`,
-    siteUrl: `https://gatsby-starter-blog-mdx-demo.netlify.com/`,
+    title: `Proverbial Monkey`,
+    author: `Damian Poole`,
+    description: `Personal blog of Damian Poole`,
+    siteUrl: `https://proverbialmonkey.co.uk/`,
     social: {
-      twitter: `mattinthecouch`,
+      twitter: `damianpoole`,
     },
   },
   plugins: [
@@ -60,7 +60,7 @@ module.exports = {
     {
       resolve: `gatsby-plugin-google-analytics`,
       options: {
-        //trackingId: `ADD YOUR TRACKING ID HERE`,
+        trackingId: `UA-1002295-1`,
       },
     },
     {
@@ -122,25 +122,15 @@ module.exports = {
         ],
       },
     },
-    {
-      resolve: `gatsby-plugin-manifest`,
-      options: {
-        name: `Gatsby Starter Blog`,
-        short_name: `GatsbyJS`,
-        start_url: `/`,
-        background_color: `#ffffff`,
-        theme_color: `#663399`,
-        display: `minimal-ui`,
-        icon: `content/assets/gatsby-icon.png`,
-      },
-    },
-    `gatsby-plugin-offline`,
     `gatsby-plugin-react-helmet`,
-    {
-      resolve: `gatsby-plugin-typography`,
+    `gatsby-plugin-postcss`,
+    { 
+      resolve: `gatsby-plugin-purgecss`,
       options: {
-        pathToConfigModule: `src/utils/typography`,
-      },
-    },
+        printRejected: true,
+        develop: false,
+        tailwind: true,
+      }
+    }
   ],
 }

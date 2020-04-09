@@ -1,6 +1,8 @@
 import React from 'react'
 import { render } from 'react-dom'
-import Highlight, { defaultProps } from 'prism-react-renderer'
+import Highlight, { defaultProps, PrismTheme } from 'prism-react-renderer'
+import OceanicNext from 'prism-react-renderer/themes/oceanicNext';
+
 import { LiveProvider, LiveEditor, LiveError, LivePreview } from 'react-live'
 
 export const Code = ({ codeString, language, ...props }) => {
@@ -14,7 +16,7 @@ export const Code = ({ codeString, language, ...props }) => {
     )
   } else {
     return (
-      <Highlight {...defaultProps} code={codeString} language={language}>
+      <Highlight {...defaultProps} code={codeString} language={language} theme={OceanicNext}>
         {({ className, style, tokens, getLineProps, getTokenProps }) => (
           <pre className={className} style={style}>
             {tokens.map((line, i) => (
