@@ -1,0 +1,193 @@
+---
+title: Mocking the initial state of the Lightning Web Component
+date: '2020-04-14'
+published: true
+---
+
+Jest is a great tool for testing, there are so many different ways to solve testing
+problems. I want to talk about a problem I have encountered and go over a solution
+to it while testing lightning web components.
+
+**Now this technique has a specific use case which I want to make clear. It should
+not be how you test components by default, there are already loads of examples of
+that specifically in the
+[LWC documentation](https://developer.salesforce.com/docs/component-library/documentation/en/lwc)
+and [LWC recipes](https://github.com/trailheadapps/lwc-recipes).**
+
+My simple use case is this; we have a existing component which is a simple form
+with multiple inputs. We already have tests to ensure our wiring and validation
+works etc.
+
+So for this example I have initially created a simple component which an obvious issue.
+
+```html
+<template>
+    <div>
+        <input
+            name="firstName"
+            value={state.firstName}
+            placeholder="Enter your first name"
+            onchange={handleChange}
+        />
+
+        <input
+            name="surname"
+            value={state.surname}
+            placeholder="Enter your surname"
+            onchange={handleChange}
+        />
+
+        <button
+            class={buttonClasses}
+            disabled={invalid}
+            onclick={handleSave}
+        >
+            Save
+        </button>
+    <div>
+</template>
+```
+
+```javascript
+import { LightningElement } from 'lwc';
+
+const setState = (state, newState) = ({ ...state, ...newState });
+
+export default class App extends LightningElement {
+    state = {
+        firstName: '',
+        surname: ''
+    }
+
+    handleChange(event) {
+        this.updateState({
+            [event.target.name]: event.target.value
+        });
+    }
+
+    handleSave(event) {
+        if (this.state.firstName === 'A') {
+            throw new Error('BOOM');
+        }
+    }
+
+    updateState(newState) {
+        this.state = setState(this.state, newState);
+    }
+}
+```
+
+We've had a bug reported that when the form is filled in with specific
+values and it is submitted it causes an error.
+
+Normally when you are testing these kind of state interactions you would do something
+like this in your test. 
+
+```javascript
+const input = root.querySelector('input');
+input.dispatchEvent(new CustomEvent('change'), { ... });
+```
+
+Now this works fine for a simple component but when you get more complex components
+you will need to dispatch more of these changes and potentially in specific orders.
+
+In order to effectively test this issue however, we would want to have our components
+initial state be set to what the reported values are. That way we don't need find
+all the inputs and dispatch events for each one. Again my example is simple so this
+step of dispatching events could be fairly complex.
+
+**This is not to say don't think about appropriate composition of your components
+but you may be inheriting bad practice etc.**
+
+So with that in mind we want a simple way of setting some default state values for
+our component which could be complex in nature.
+
+The first thing we are going to need to do is to create a module which will provide
+the default values for our state object and also a means of mocking them to be
+something else.
+
+```javascript
+export const DEFAULT_STATE = {
+    firstName: '',
+    surname: '',
+};
+```
+
+We'll make some tweaks to our component to consume it.
+
+```javascript
+import { LightningElement } from 'lwc';
+import { DEFAULT_STATE } from './constants';
+
+...
+
+export default class App extends LightningElement {
+    state = DEFAULT_STATE;
+
+    ...
+}
+```
+
+Now that we have done this we can now write our test using `jest.doMock`
+
+```javascript
+let createElement;
+
+const createComponent = (config = {}, cmpClass) => {
+    const component = createElement('my-app', {
+        is: cmpClass
+    });
+    Object.assign(component, config);
+
+    document.body.appendChild(component);
+
+    return {
+        component,
+        root: component.shadowRoot
+    };
+}
+
+describe('my-app', () => {
+    afterEach(() => {
+        while (document.body.firstChild) {
+            document.body.removeChild(document.body.firstChild);
+        }
+    });
+
+    beforeEach(async () => {
+        // we need to ensure module mocks are reset per test
+        jest.resetModules();
+
+        // resetting modules means we need to re-import createElement
+        let { createElement: create } = await import('lwc');
+        createElement = create;
+    });
+
+    it('Should not throw and error when firstName is A', () => {
+        jest.doMock('../constants.js', () => {
+            const originalModule = jest.requireActual('../constants.js');
+
+            return {
+                ...originalModule,
+                DEFAULT_STATE: {
+                    ...originalModule.DEFAULT_STATE,
+                    firstName: 'A'
+                }
+            };
+        });
+
+        const MyApp = await import('my/app');
+
+        const { root } = createComponent({}, MyApp.default);
+
+        expect(root.querySelector('input').value).toEqual('A');
+
+        // Now we can test our failing logic when we call `handleSave`
+    });
+});
+```
+
+I have created a much more comprehensive repo with further test examples showing how
+you would blend these technique with a standard way of testing your component. You
+could also always have separate test files for these so that you do not need to modify
+all you existing tests too.

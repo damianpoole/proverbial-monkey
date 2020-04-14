@@ -1,0 +1,56 @@
+---
+title: Understanding @track and why I think you shouldn't use it
+date: '2020-04-13'
+published: false
+---
+
+Track is a decorator for Lightning Web Components, it's allows you to let the framework
+know that you wish to have the component rerender whenever this property is changed.
+
+[Simple example of using @track](https://developer.salesforce.com/docs/component-library/tools/playground/bcQm51hUo/1/edit)
+
+```javascript
+class simpleRerender extends LightningElement {
+    @track text = 'Initial value';
+
+    handleClick() {
+        this.text = 'Changed value'
+    }
+}
+```
+
+I have now trained aproximately 80 people in using Lightning Web Components and have helped
+even more creating products for the organisation I work for. The number one issue I see time
+and time again is the misunderstanding about how track works.
+
+It will work for any primitive type and for object it will also traverse down multiple
+levels (I've tested it to 13) of object heirarchy and track each property it finds.
+
+A common misconception is that it is tracking the value of the property when in actuality it
+is tracking the reference which is assigned to the property, this may seem a subtle difference
+but the following examples will show that that is not the case.
+
+Strings are immutable in JavaScript so changing the value of a property that is using a string
+will always cause the component to rerender, that is not true for other types which are not
+immutable such as object or array.
+
+Since LWC open source 1.1 and Salesforce spring 20' release we have been able to not use the
+track decorator and still have the component rerender when the properties reference is changed.
+In order for this to be "tracked" the property needs to be used in your template, it will also
+not traverse down objects like the track decorator.
+
+This may seem a loss of a feature but I believe it actually makes working with state inside LWC
+simpler to understand across multiple teams working for an organisation, it forces the pattern
+of always recreating state which ensures that the component will rerender.
+
+As we have seen from the previous examples, you always need to assign a new reference in order
+to ensure that your component is rerendered. The only benefit to using the track decorator is
+for automatic tracking of child properties within an object, I believe that if you miss this
+feature the likelyhood is that your components are not properly composed, you've effectively
+created a "god" component and it should be broken down in into relevant sub components.
+
+With all that in mind, I honestly do not see the benefit from using the track decorator. In my
+experience people get confused about how it works and it is a false sense of security in that
+if I use the decorator my component will always rerender which is not true. By forcing yourself
+to not use it and ensuring you always set a new reference to whatever is effectively being
+tracked you will always cause a rerender of your component. 
