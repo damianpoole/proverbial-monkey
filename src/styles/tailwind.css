@@ -4,6 +4,10 @@
 
 @tailwind utilities;
 
+.link {
+    @apply text-blue-600;
+}
+
 .markdown {
     > * + * {
         @apply mt-6;
@@ -12,10 +16,18 @@
     pre {
         @apply rounded-lg p-6 -mx-6;
     }
-}
 
-.link {
-    @apply text-blue-600;
+    a {
+        @apply link;
+    }
+
+    a:visited {
+        @apply link;
+    }
+
+    a:hover {
+        @apply bg-blue-600 text-white; 
+    }
 }
 
 .link:hover {
