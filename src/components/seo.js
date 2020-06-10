@@ -17,6 +17,12 @@ function SEO({ description, lang, meta, keywords, title }) {
             }}
             title="Proverbial Monkey"
             titleTemplate={`%s | ${data.site.siteMetadata.title}`}
+            link={[
+              {"rel": "icon", 
+               "type": "image/png", 
+               "href": "favicon-32.png"
+              }
+            ]}
             meta={[
               {
                 name: `description`,
