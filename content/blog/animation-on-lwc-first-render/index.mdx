@@ -1,0 +1,127 @@
+---
+title: Animating Lightning Web Components on first render
+date: '2020-10-12'
+published: true
+---
+
+With this post I hopefully am going to explain how and why CSS animations behave
+the way they do with Lightning Web Components. The scope of this project is simple,
+we want to make an element within a LWC animate it's width when it is first placed into
+the DOM. We are not relying on any data being provided via a remote request or a
+method of this component being called by a parent.
+
+The HTML is really simple;
+
+```html
+<template>
+  <div class="bar"></div>
+</template>
+```
+
+And the CSS we are going to apply;
+
+```css
+.bar {
+  background: hotpink;
+  height: 20px;
+  width: 0px;
+}
+
+.bar.bar-grow {
+  width: 100%;
+  transition: width 1s linear;
+}
+```
+
+We are going to use the renderedCallback to start our animation after the component
+is rendered for the first time. Update the HTML template to use a getter for the class
+property.
+
+```html
+<template>
+  <div class="{barClass}"></div>
+</template>
+```
+
+```javascript
+import { LightningElement } from 'lwc'
+
+export default class Bar extends LightningElement {
+  animate = false
+
+  renderedCallback() {
+    if (!this._firstRender) {
+      this._firstRender = true
+      this.animate = true
+    }
+  }
+
+  get barClass() {
+    return `bar ${this.animate ? 'bar-gow' : ''}`
+  }
+}
+```
+
+But wait, theres a problem. If you run this code what you will see is the bar will
+be full width and the animation has not run, instead it has immediately been set
+to the end state of the transition.
+
+A common approach I have seen is to use a timeout to change the animation property,
+like so;
+
+```javascript
+renderedCallback() {
+    if (!this._firstRender) {
+        this._firstRender = true;
+        setTimeout(() => {
+            this.animate = true;
+        });
+    }
+}
+```
+
+Before I attempt to explain what is going on here here is another way to achieve this
+result without the **setTimeout**.
+
+```javascript
+renderedCallback() {
+    if (!this._firstRender) {
+        this._firstRender = true;
+        this.animate = true;
+        this.template.querySelector('.bar').offsetLeft;
+    }
+}
+```
+
+**_So what is going on here?_**
+
+LWC rerenders using a microtask, changing a reactive property is not immediate, this is why
+you can change a reactive property multiple times in a piece of code like an event handler
+but only the last value that was set is what is actually rendered.
+
+So when our component initially is inserted into the DOM and animate is set to false
+this is done during a microtask. By changing the animate property we are triggering another
+microtask to be executed to potentially rerender the element.
+
+By enqueing another microtask the event loop has not proceeded therefore the rendering
+stage has not happened and the UI thread which handles paint etc has not done anything.
+
+Once the second microtask has happened we have updated the DOM again and now the queue is
+empty therefore the event loop continues and we render the changed DOM. This is why the
+first example just immediately showed the bar as being 100% width.
+
+Now with the setTimeout example we are enqueing the property change to a task, not a microtask.
+This means once the microtask queue is empty the render stage will happen and then the next
+available task will be picked up an executed. We've effectively created a delay in changing
+the property.
+
+And finally the working version without a timeout, what is going on here. Certain properties
+cause the immediate invalidation and recalculation of layout. This is called layout thrashing
+and this helps us in our example by ensuring that the layout knows about the element having zero
+width. So when we apply the transition class it correctly causes the transition to happen.
+
+Layout thrashing generally is something you want to avoid, it is a common cause of application
+performance problems, especially large single page applications.
+
+**_As always the most important thing is to understand the concepts so you know when it makes
+sense to use them and when they will cause you issues._**
