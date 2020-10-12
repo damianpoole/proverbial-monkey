@@ -26,15 +26,7 @@ class BlogPostTemplate extends React.Component {
 
         <Bio />
 
-        <ul
-          style={{
-            display: `flex`,
-            flexWrap: `wrap`,
-            justifyContent: `space-between`,
-            listStyle: `none`,
-            padding: 0,
-          }}
-        >
+        <ul class="flex flex-wrap justify-between list-none p-0">
           <li>
             {previous && (
               <Link className="link" to={previous.fields.slug} rel="prev">
@@ -44,7 +36,7 @@ class BlogPostTemplate extends React.Component {
           </li>
           <li>
             {next && (
-              <Link to={next.fields.slug} rel="next">
+              <Link className="link" to={next.fields.slug} rel="next">
                 {next.frontmatter.title} →
               </Link>
             )}
