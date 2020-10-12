@@ -17,11 +17,13 @@ class BlogPostTemplate extends React.Component {
       <Layout location={this.props.location} title={siteTitle}>
         <SEO title={post.frontmatter.title} description={post.excerpt} />
         <h1 className="text-4xl font-bold py-4">{post.frontmatter.title}</h1>
-        <p class="text-sm font-semibold text-gray-800">{post.frontmatter.date}</p>
+        <p class="text-sm font-semibold text-gray-800">
+          {post.frontmatter.date}
+        </p>
         <div className="markdown mt-6">
           <MDXRenderer>{post.body}</MDXRenderer>
         </div>
-        
+
         <Bio />
 
         <ul
@@ -63,7 +65,10 @@ export const pageQuery = graphql`
         author
       }
     }
-    mdx(fields: { slug: { eq: $slug } }, frontmatter: {published: {ne: false}}) {
+    mdx(
+      fields: { slug: { eq: $slug } }
+      frontmatter: { published: { ne: false } }
+    ) {
       id
       excerpt(pruneLength: 160)
       frontmatter {

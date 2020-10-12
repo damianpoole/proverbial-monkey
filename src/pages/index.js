@@ -27,7 +27,7 @@ class BlogIndex extends React.Component {
                   {title}
                 </Link>
               </h3>
-              <small className="text-gray-600" >{node.frontmatter.date}</small>
+              <small className="text-gray-600">{node.frontmatter.date}</small>
               <p dangerouslySetInnerHTML={{ __html: node.excerpt }} />
             </div>
           )
@@ -46,7 +46,10 @@ export const pageQuery = graphql`
         title
       }
     }
-    allMdx(sort: { fields: [frontmatter___date], order: DESC }, filter: {frontmatter: {published: {ne: false}}}) {
+    allMdx(
+      sort: { fields: [frontmatter___date], order: DESC }
+      filter: { frontmatter: { published: { ne: false } } }
+    ) {
       edges {
         node {
           excerpt

@@ -23,12 +23,10 @@ class Layout extends React.Component {
     return (
       <div className="flex justify-center">
         <div className="w-8/12">
-        {header}
-        {children}
-        <footer className="mt-6">
-          © {new Date().getFullYear()}
-        </footer>
-      </div>
+          {header}
+          {children}
+          <footer className="mt-6">© {new Date().getFullYear()}</footer>
+        </div>
       </div>
     )
   }

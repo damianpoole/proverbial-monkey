@@ -17,10 +17,14 @@ function Bio() {
                 className="rounded-full"
               />
             </div>
-            <p>Written by <strong>{author}</strong>, a senior software 
-              engineer living and working in Yorkshire.
+            <p>
+              Written by <strong>{author}</strong>, a senior software engineer
+              living and working in Yorkshire.
               {` `}
-              <a className="inline-block link" href={`https://twitter.com/${social.twitter}`}>
+              <a
+                className="inline-block link"
+                href={`https://twitter.com/${social.twitter}`}
+              >
                 You should follow him on Twitter
               </a>
             </p>
