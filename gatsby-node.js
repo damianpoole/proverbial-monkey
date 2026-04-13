@@ -9,7 +9,7 @@ exports.createPages = ({ graphql, actions }) => {
     `
       {
         allMdx(
-          sort: { fields: [frontmatter___date], order: DESC }
+          sort: { frontmatter: { date: DESC } }
           limit: 1000
           filter: { frontmatter: {published: {ne: false}} }
         ) {
