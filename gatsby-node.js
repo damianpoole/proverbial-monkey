@@ -9,13 +9,16 @@ exports.createPages = ({ graphql, actions }) => {
     `
       {
         allMdx(
-          sort: { fields: [frontmatter___date], order: DESC }
+          sort: { frontmatter: { date: DESC } }
           limit: 1000
           filter: { frontmatter: {published: {ne: false}} }
         ) {
           edges {
             node {
               id
+              internal {
+                contentFilePath
+              }
               fields {
                 slug
               }
@@ -42,8 +45,9 @@ exports.createPages = ({ graphql, actions }) => {
 
       createPage({
         path: post.node.fields.slug,
-        component: blogPost,
+        component: `${blogPost}?__contentFilePath=${post.node.internal.contentFilePath}`,
         context: {
+          id: post.node.id,
           slug: post.node.fields.slug,
           previous,
           next,

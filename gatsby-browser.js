@@ -1,9 +1,8 @@
-// custom typefaces
-import 'typeface-montserrat'
-import 'typeface-merriweather'
+import '@fontsource-variable/montserrat'
+import '@fontsource/merriweather'
 
 import { wrapRootElement as wrap } from './wrap-root-element'
 
 export const wrapRootElement = wrap
 
-import './src/styles/tailwind.css';
+import './src/styles/tailwind.css'

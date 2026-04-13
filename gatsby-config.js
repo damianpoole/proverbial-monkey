@@ -9,6 +9,7 @@ module.exports = {
     },
   },
   plugins: [
+    `gatsby-plugin-image`,
     {
       resolve: `gatsby-source-filesystem`,
       options: {
@@ -27,9 +28,6 @@ module.exports = {
       resolve: `gatsby-plugin-mdx`,
       options: {
         extensions: ['.mdx', '.md'],
-        // a workaround to solve mdx-remark plugin compat issue
-        // https://github.com/gatsbyjs/gatsby/issues/15486
-        plugins: [`gatsby-remark-images`],
         gatsbyRemarkPlugins: [
           {
             resolve: `gatsby-remark-images`,
@@ -81,10 +79,12 @@ module.exports = {
               return allMdx.edges.map(edge => {
                 return Object.assign({}, edge.node.frontmatter, {
                   description: edge.node.excerpt,
-                  data: edge.node.frontmatter.date,
+                  date: edge.node.frontmatter.date,
                   url: site.siteMetadata.siteUrl + edge.node.fields.slug,
                   guid: site.siteMetadata.siteUrl + edge.node.fields.slug,
-                  custom_elements: [{ 'content:encoded': edge.node.html }],
+                  custom_elements: [
+                    { 'content:encoded': edge.node.excerpt },
+                  ],
                 })
               })
             },
@@ -99,7 +99,7 @@ module.exports = {
             {
               allMdx(
                 limit: 1000,
-                sort: { order: DESC, fields: [frontmatter___date] },
+                sort: { frontmatter: { date: DESC } }
                 filter: {frontmatter: {published: {ne: false}}}
               ) {
                 edges {
@@ -110,7 +110,6 @@ module.exports = {
                       date
                       published
                     }
-                    html
                   }
                 }
               }
@@ -124,13 +123,5 @@ module.exports = {
     },
     `gatsby-plugin-react-helmet`,
     `gatsby-plugin-postcss`,
-    {
-      resolve: `gatsby-plugin-purgecss`,
-      options: {
-        printRejected: true,
-        develop: false,
-        tailwind: true,
-      },
-    },
   ],
 }
